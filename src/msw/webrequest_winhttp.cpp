@@ -417,7 +417,17 @@ void wxWebRequestWinHTTP::Start()
         objectName += wxString(urlComps.lpszExtraInfo, urlComps.dwExtraInfoLength);
 
     // Open a request
-    static const wchar_t* acceptedTypes[] = { L"*/*", NULL };
+    static const wchar_t* defaultAcceptedTypes[] = { L"*/*", NULL };
+    const wchar_t **acceptedTypes = defaultAcceptedTypes;
+    for ( wxWebRequestHeaderMap::const_iterator header = m_headers.begin();
+          header != m_headers.end();
+          ++header )
+    {
+        if (header->first.Lower() == "accept") {
+            acceptedTypes = WINHTTP_DEFAULT_ACCEPT_TYPES;
+            break;
+        }
+    }
     m_request = wxWinHTTP::WinHttpOpenRequest
                   (
                     m_connect,
